@@ -18,8 +18,8 @@ require (
 	github.com/mjibson/go-dsp v0.0.0-20180508042940-11479a337f12
 	github.com/ory/dockertest/v3 v3.12.0
 	github.com/pion/rtp v1.10.2
-	github.com/pion/sdp/v3 v3.0.18
-	github.com/pion/webrtc/v4 v4.2.14
+	github.com/pion/sdp/v3 v3.0.19
+	github.com/pion/webrtc/v4 v4.2.15
 	github.com/prometheus/client_golang v1.23.2
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
@@ -104,9 +104,9 @@ require (
 	github.com/pion/rtcp v1.2.16 // indirect
 	github.com/pion/sctp v1.10.0 // indirect
 	github.com/pion/srtp/v3 v3.0.11 // indirect
-	github.com/pion/stun/v3 v3.1.4 // indirect
+	github.com/pion/stun/v3 v3.1.5 // indirect
 	github.com/pion/transport/v4 v4.0.2 // indirect
-	github.com/pion/turn/v5 v5.0.8 // indirect
+	github.com/pion/turn/v5 v5.0.9 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.68.1 // indirect
@@ -114,7 +114,7 @@ require (
 	github.com/puzpuzpuz/xsync/v4 v4.5.0 // indirect
 	github.com/redis/go-redis/v9 v9.20.0 // indirect
 	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
-	github.com/urfave/cli/v3 v3.9.0
+	github.com/urfave/cli/v3 v3.10.0
 	github.com/wlynxg/anet v0.0.5 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
