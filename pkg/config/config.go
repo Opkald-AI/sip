@@ -86,22 +86,30 @@ type Config struct {
 	ApiSecret string             `yaml:"api_secret"` // required (env LIVEKIT_API_SECRET)
 	WsUrl     string             `yaml:"ws_url"`     // required (env LIVEKIT_WS_URL)
 
-	HealthPort           int                 `yaml:"health_port"`
-	PrometheusPort       int                 `yaml:"prometheus_port"`
-	PProfPort            int                 `yaml:"pprof_port"`
-	SIPPort              int                 `yaml:"sip_port"`        // announced SIP signaling port
-	SIPPortListen        int                 `yaml:"sip_port_listen"` // SIP signaling port to listen on
-	SIPHostname          string              `yaml:"sip_hostname"`
-	OutboundRouteHeaders []string            `yaml:"outbound_route_headers"` // Route headers prepended to outbound requests, e.g. "<sip:proxy:5060;transport=tcp;lr>"
-	SIPRingingInterval   time.Duration       `yaml:"sip_ringing_interval"`   // from 1 sec up to 60 (default '1s')
-	TCP                  *TCPConfig          `yaml:"tcp"`
-	TLS                  *TLSConfig          `yaml:"tls"`
-	RTPPort              rtcconfig.PortRange `yaml:"rtp_port"`
-	Logging              logger.Config       `yaml:"logging"`
-	ClusterID            string              `yaml:"cluster_id"` // cluster this instance belongs to
-	MaxCpuUtilization    float64             `yaml:"max_cpu_utilization"`
-	MaxActiveCalls       int                 `yaml:"max_active_calls"` // if set, used for affinity-based routing
-	SIPTrunkIds          []string            `yaml:"sip_trunk_ids"`    // if set, only accept calls for these trunk IDs
+	HealthPort           int           `yaml:"health_port"`
+	PrometheusPort       int           `yaml:"prometheus_port"`
+	PProfPort            int           `yaml:"pprof_port"`
+	SIPPort              int           `yaml:"sip_port"`        // announced SIP signaling port
+	SIPPortListen        int           `yaml:"sip_port_listen"` // SIP signaling port to listen on
+	SIPHostname          string        `yaml:"sip_hostname"`
+	OutboundRouteHeaders []string      `yaml:"outbound_route_headers"` // Route headers prepended to outbound requests, e.g. "<sip:proxy:5060;transport=tcp;lr>"
+	SIPRingingInterval   time.Duration `yaml:"sip_ringing_interval"`   // from 1 sec up to 60 (default '1s')
+	// DeclineCheckURL, when set, is queried (HTTP GET with ?from=&to=&trunk=) on
+	// each inbound INVITE BEFORE the call is answered. If it responds 200 with
+	// JSON {"reject": true}, the call is rejected with 486 Busy Here (a real busy
+	// tone) instead of being answered. Fail-open: any error, timeout, non-200, or
+	// unparsable body lets the call proceed normally. Used to decline repeat
+	// callers (e.g. same number within the last 4 hours) at the SIP layer, for
+	// customers whose carrier can't do the pre-routing check themselves.
+	DeclineCheckURL   string              `yaml:"decline_check_url"`
+	TCP               *TCPConfig          `yaml:"tcp"`
+	TLS               *TLSConfig          `yaml:"tls"`
+	RTPPort           rtcconfig.PortRange `yaml:"rtp_port"`
+	Logging           logger.Config       `yaml:"logging"`
+	ClusterID         string              `yaml:"cluster_id"` // cluster this instance belongs to
+	MaxCpuUtilization float64             `yaml:"max_cpu_utilization"`
+	MaxActiveCalls    int                 `yaml:"max_active_calls"` // if set, used for affinity-based routing
+	SIPTrunkIds       []string            `yaml:"sip_trunk_ids"`    // if set, only accept calls for these trunk IDs
 
 	UseExternalIP bool   `yaml:"use_external_ip"`
 	LocalNet      string `yaml:"local_net"` // local IP net to use, e.g. 192.168.0.0/24
@@ -113,16 +121,16 @@ type Config struct {
 	MediaUseExternalIP bool   `yaml:"media_use_external_ip"`
 	MediaNAT1To1IP     string `yaml:"media_nat_1_to_1_ip"`
 
-	MediaTimeout         time.Duration   `yaml:"media_timeout"`
-	MediaTimeoutInitial  time.Duration   `yaml:"media_timeout_initial"`
-	SymmetricRTP         bool            `yaml:"symmetric_rtp"`
+	MediaTimeout        time.Duration `yaml:"media_timeout"`
+	MediaTimeoutInitial time.Duration `yaml:"media_timeout_initial"`
+	SymmetricRTP        bool          `yaml:"symmetric_rtp"`
 	// RTPDrainingIdleTimeout / RTPDrainingDuration control how long a closed call's RTP
 	// port is kept bound and draining before it can be reallocated. Set to a negative
 	// value to disable. Zero uses the defaults.
-	RTPDrainingIdleTimeout time.Duration `yaml:"rtp_draining_idle_timeout"`
-	RTPDrainingDuration    time.Duration `yaml:"rtp_draining_duration"`
-	IgnoreLocalAddrInSDP bool            `yaml:"ignore_local_addr_in_sdp"` // enable symmetric RTP if local IP is specified in SDP
-	Codecs               map[string]bool `yaml:"codecs"`
+	RTPDrainingIdleTimeout time.Duration   `yaml:"rtp_draining_idle_timeout"`
+	RTPDrainingDuration    time.Duration   `yaml:"rtp_draining_duration"`
+	IgnoreLocalAddrInSDP   bool            `yaml:"ignore_local_addr_in_sdp"` // enable symmetric RTP if local IP is specified in SDP
+	Codecs                 map[string]bool `yaml:"codecs"`
 
 	// HideInboundPort controls how SIP endpoint responds to unverified inbound requests.
 	// Setting it to true makes SIP server silently drop INVITE requests if it gets a negative Auth or Dispatch response.
