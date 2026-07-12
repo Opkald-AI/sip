@@ -19,8 +19,50 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
+
+// declineDigits reduces a phone number to its significant digits for matching:
+// keeps digits only and strips the Danish country code when the length shows it
+// is prefixed (0045 + 8, or 45 + 8), so "+4548795304", "004548795304",
+// "4548795304" and "48795304" all normalize to the same value. A bare 8-digit
+// number that happens to start with "45" is left untouched.
+func declineDigits(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			b.WriteByte(byte(r))
+		}
+	}
+	x := b.String()
+	if len(x) == 12 && strings.HasPrefix(x, "0045") {
+		return x[4:]
+	}
+	if len(x) == 10 && strings.HasPrefix(x, "45") {
+		return x[2:]
+	}
+	return x
+}
+
+// matchesDeclineNumber reports whether the called (dialed) number is one of the
+// numbers the decline check is scoped to. An empty list matches nothing, so the
+// check stays off for every clinic until it is explicitly scoped to a number.
+func matchesDeclineNumber(to string, numbers []string) bool {
+	if len(numbers) == 0 || to == "" {
+		return false
+	}
+	td := declineDigits(to)
+	if td == "" {
+		return false
+	}
+	for _, n := range numbers {
+		if declineDigits(n) == td {
+			return true
+		}
+	}
+	return false
+}
 
 // declineCheckTimeout bounds the pre-answer decline check so a slow/unreachable
 // endpoint can never stall the INVITE path. On timeout we fail open (answer).

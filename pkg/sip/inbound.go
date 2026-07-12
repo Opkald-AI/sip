@@ -552,12 +552,15 @@ func (s *Server) processInvite(req *sip.Request, tx sip.ServerTransaction) (retE
 	}
 
 	// Optional pre-answer decline: ask an external endpoint whether this caller
-	// should be given a busy tone. Runs after the trunk is resolved (endpoint
-	// knows the called number/clinic) and before the call is accepted, so a
-	// positive result yields a real 486 Busy Here rather than a BYE. Fail-open:
-	// see shouldDeclineInbound. Used to decline repeat callers (same number
-	// within e.g. the last 4 hours) at the SIP layer.
-	if s.conf.DeclineCheckURL != "" && shouldDeclineInbound(ctx, s.conf.DeclineCheckURL, from.User, to.User, r.TrunkID) {
+	// should be given a busy tone. Scoped to only the called numbers in
+	// DeclineCheckNumbers, so every other clinic's calls skip the HTTP check
+	// entirely. Runs after the trunk is resolved (endpoint knows the called
+	// number/clinic) and before the call is accepted, so a positive result
+	// yields a real 486 Busy Here rather than a BYE. Fail-open: see
+	// shouldDeclineInbound. Used to decline repeat callers (same number within
+	// e.g. the last 4 hours) at the SIP layer.
+	if s.conf.DeclineCheckURL != "" && matchesDeclineNumber(to.User, s.conf.DeclineCheckNumbers) &&
+		shouldDeclineInbound(ctx, s.conf.DeclineCheckURL, from.User, to.User, r.TrunkID) {
 		cmon.InviteErrorShort(stats.ClientError("declined"))
 		log.Infow("Declining inbound with 486 Busy (decline check)", "from", from.User, "to", to.User)
 		cc.RespondAndDrop(sip.StatusBusyHere, "Busy")

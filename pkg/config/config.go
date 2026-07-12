@@ -94,22 +94,30 @@ type Config struct {
 	SIPHostname          string        `yaml:"sip_hostname"`
 	OutboundRouteHeaders []string      `yaml:"outbound_route_headers"` // Route headers prepended to outbound requests, e.g. "<sip:proxy:5060;transport=tcp;lr>"
 	SIPRingingInterval   time.Duration `yaml:"sip_ringing_interval"`   // from 1 sec up to 60 (default '1s')
-	// DeclineCheckURL, when set, is queried (HTTP GET with ?from=&to=&trunk=) on
-	// each inbound INVITE BEFORE the call is answered. If it responds 200 with
-	// JSON {"reject": true}, the call is rejected with 486 Busy Here (a real busy
-	// tone) instead of being answered. Fail-open: any error, timeout, non-200, or
-	// unparsable body lets the call proceed normally. Used to decline repeat
-	// callers (e.g. same number within the last 4 hours) at the SIP layer, for
-	// customers whose carrier can't do the pre-routing check themselves.
-	DeclineCheckURL   string              `yaml:"decline_check_url"`
-	TCP               *TCPConfig          `yaml:"tcp"`
-	TLS               *TLSConfig          `yaml:"tls"`
-	RTPPort           rtcconfig.PortRange `yaml:"rtp_port"`
-	Logging           logger.Config       `yaml:"logging"`
-	ClusterID         string              `yaml:"cluster_id"` // cluster this instance belongs to
-	MaxCpuUtilization float64             `yaml:"max_cpu_utilization"`
-	MaxActiveCalls    int                 `yaml:"max_active_calls"` // if set, used for affinity-based routing
-	SIPTrunkIds       []string            `yaml:"sip_trunk_ids"`    // if set, only accept calls for these trunk IDs
+	// DeclineCheckURL, when set together with DeclineCheckNumbers, is queried
+	// (HTTP GET with ?from=&to=&trunk=) on an inbound INVITE BEFORE the call is
+	// answered. If it responds 200 with JSON {"reject": true}, the call is
+	// rejected with 486 Busy Here (a real busy tone) instead of being answered.
+	// Fail-open: any error, timeout, non-200, or unparsable body lets the call
+	// proceed normally. Used to decline repeat callers (e.g. same number within
+	// the last 4 hours) at the SIP layer, for customers whose carrier can't do
+	// the pre-routing check themselves.
+	DeclineCheckURL string `yaml:"decline_check_url"`
+	// DeclineCheckNumbers scopes the decline check to only the called (dialed)
+	// numbers listed here — so the vast majority of inbound calls (every other
+	// clinic) skip the HTTP check entirely and are never affected. Compared
+	// against the INVITE's called number after digit-only normalization (so
+	// "+45…", "0045…", and bare forms all match). If empty, the check is NEVER
+	// run, so setting DeclineCheckURL alone is inert until you scope it here.
+	DeclineCheckNumbers []string            `yaml:"decline_check_numbers"`
+	TCP                 *TCPConfig          `yaml:"tcp"`
+	TLS                 *TLSConfig          `yaml:"tls"`
+	RTPPort             rtcconfig.PortRange `yaml:"rtp_port"`
+	Logging             logger.Config       `yaml:"logging"`
+	ClusterID           string              `yaml:"cluster_id"` // cluster this instance belongs to
+	MaxCpuUtilization   float64             `yaml:"max_cpu_utilization"`
+	MaxActiveCalls      int                 `yaml:"max_active_calls"` // if set, used for affinity-based routing
+	SIPTrunkIds         []string            `yaml:"sip_trunk_ids"`    // if set, only accept calls for these trunk IDs
 
 	UseExternalIP bool   `yaml:"use_external_ip"`
 	LocalNet      string `yaml:"local_net"` // local IP net to use, e.g. 192.168.0.0/24
