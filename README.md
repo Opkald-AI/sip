@@ -1,3 +1,7 @@
+> **Opkald-AI fork.** This is a fork of [livekit/sip](https://github.com/livekit/sip). `main` mirrors upstream
+> and has no OpkaldAI changes. OpkaldAI-specific work lives on feature branches; see [CLAUDE.md](CLAUDE.md)
+> for what runs in production and how this fork is used. The rest of this README is upstream's.
+
 <!--BEGIN_BANNER_IMAGE-->
 
 <picture>
