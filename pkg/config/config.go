@@ -83,6 +83,10 @@ type Config struct {
 	// against the INVITE's called number after digit-only normalization (so
 	// "+45…", "0045…", and bare forms all match). If empty, the check is NEVER
 	// run, so setting DeclineCheckURL alone is inert until you scope it here.
+	// The entry "*" checks every called number. The endpoint then decides per
+	// clinic, so a clinic can opt in without a config change or a restart.
+	// With "*", leave clinic_id out of DeclineCheckURL, so a called number that
+	// no clinic owns fails open.
 	DeclineCheckNumbers []string            `yaml:"decline_check_numbers"`
 	TLS                 *TLSConfig          `yaml:"tls"`
 	RTPPort             rtcconfig.PortRange `yaml:"rtp_port"`

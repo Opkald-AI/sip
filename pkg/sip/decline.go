@@ -45,9 +45,15 @@ func declineDigits(s string) string {
 	return x
 }
 
+// declineAllNumbers in DeclineCheckNumbers sends every called number to the
+// decline check. The endpoint then decides per clinic, so a clinic can opt in
+// or out without a change to this config and without a restart.
+const declineAllNumbers = "*"
+
 // matchesDeclineNumber reports whether the called (dialed) number is one of the
 // numbers the decline check is scoped to. An empty list matches nothing, so the
 // check stays off for every clinic until it is explicitly scoped to a number.
+// The entry "*" matches every non-empty called number.
 func matchesDeclineNumber(to string, numbers []string) bool {
 	if len(numbers) == 0 || to == "" {
 		return false
@@ -57,6 +63,9 @@ func matchesDeclineNumber(to string, numbers []string) bool {
 		return false
 	}
 	for _, n := range numbers {
+		if strings.TrimSpace(n) == declineAllNumbers {
+			return true
+		}
 		if declineDigits(n) == td {
 			return true
 		}
